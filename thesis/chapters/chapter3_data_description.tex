@@ -6,7 +6,7 @@ This chapter outlines the two publicly available datasets that are used in this 
 \section{Dataset 1: Disease Symptom Prediction Dataset}
 \label{sec:dataset1}
 
-There are approximately 5,000 patient records in the first dataset (Disease Symptom Prediction Dataset~\citep{Kaggle_Disease2020}). Each record is a combination of symptoms assigned to one of 41 disease categories. The dataset consists of 132 different symptoms as columns, with 1 meaning that the symptom exists and 0 indicating its absence.
+The first dataset (Disease Symptom Prediction Dataset~\citep{Kaggle_Disease2020}) includes 4,920 patient records, which label a set of symptoms for each of 41 different disease categories. Once the lists of symptoms are converted into binary vectors, there are 131 different symptoms in the set, each with a value of 1 if it is present and 0 if it is not. The raw file is well balanced with 120 records per disease, but the majority of these records are exact duplicates of each other, and once deduplicated only 304 unique symptom--disease combinations are left. The deduplication step (which is described in Chapter~\ref{ch:methodology}) is crucial because, if it were not done, the training and testing on duplicated rows would lead to an optimistic estimation of performance.
 
 The main features of this data are summarized in Table~\ref{tab:dataset1_overview}.
 
@@ -19,8 +19,8 @@ The main features of this data are summarized in Table~\ref{tab:dataset1_overvie
 \textbf{Property}         & \textbf{Value} \\
 \midrule
 Source                     & Kaggle (itachi9604) \\
-Number of records          & $\sim$5,000 \\
-Number of features         & 132 (binary symptoms) \\
+Number of records          & 4,920 raw (304 unique after deduplication) \\
+Number of features         & 131 (binary symptoms) \\
 Number of disease classes  & 41 \\
 Feature type               & Binary (0/1) \\
 Target variable            & Disease name (categorical) \\
@@ -33,20 +33,20 @@ The data set was collected from a number of medical resources along with some ex
 
 \subsubsection{Class Distribution}
 
-There is a moderate class imbalance in Dataset~1. There are 100 to 150 records in most categories of diseases and less than 50 examples in some of the rare diseases. The general trend is apparent, with the top 10 most common diseases accounting for about 40\% of the total, and the bottom 10 keeping to less than 10\%.
+When the data from Dataset~1 is presented in its raw form, this set is perfectly balanced; there are 120 records for each of the 41 diseases. But this balance is artificial, since most of the 120 records are identical. Following deduplication, each disease has between 5 and 10 different symptom--disease combinations; this results in a very slight imbalance (2:1) between the largest and smallest classes.
 
-This kind of imbalance is plausible because, in fact, there are diseases that are more common than others. However, it also implies that classifiers trained without imbalance handling will tend to over-predict common diseases and overlook rare ones. This is handled by class weighting (Section~\ref{sec:class_imbalance}).
+This is a residual imbalance which is small compared to that of Dataset~2, but is still significant enough to be dealt with to make sure that the classifiers do not slightly favour the better-represented diseases. For this reason, class weighting is used throughout (Section~\ref{sec:class_imbalance}).
 
 \subsubsection{Symptom Overlap Among Diseases}
 
-One interesting aspect of this data set is that many of the diseases have similar symptoms. For instance, fever is found in about 35\% of records across different disease categories. This is medically reasonable: fever is a non-specific symptom and can be caused by many illnesses, including the flu and tuberculosis. The challenge for the classifier is then to find combinations of symptoms instead of individual symptoms.
+An interesting feature of this set of data is that a number of the diseases have similar symptoms. There are many different categories of illness that present with non-specific symptoms, such as fever: this is medically reasonable, because there are a lot of illnesses that can have fever as a symptom, for example flu and tuberculosis. The difficulty for the classifier is then to identify the set of symptoms, instead of just one symptom.
 
-I calculated the patterns of co-occurrence of symptoms and discovered that there are some combinations that are very good indicators. For instance, [yellowish\_skin, loss\_of\_appetite, abdominal\_pain] is strongly associated with liver diseases, and [skin\_rash, itching, nodal\_skin\_eruptions] is strongly associated with dermatological conditions. These patterns can be captured by tree-based classifiers like Random Forest and XGBoost, as they can split on several features simultaneously.
+A review of the data reveals that certain combinations of symptoms are very good predictors of a disease group. For instance, the mixture of yellowish skin, loss of appetite and abdominal pain suggests liver ailments, and skin rash with itching and a nodular skin eruption suggests dermatological ailments. These joint patterns can be represented by tree-based classifiers like Random Forest or XGBoost, which can split on multiple features at once.
 
 \section{Dataset~2: Diseases and Symptoms Dataset}
 \label{sec:dataset2}
 
-The second one is the Diseases and Symptoms Dataset \citep{Kaggle_Diseases2023}, which is also quite big, having approximately 246,000 patient records. It encompasses more conditions than Dataset~1.
+The second is the Diseases and Symptoms Dataset~\citep{Kaggle_Diseases2023}, which is considerably larger, with approximately 246,000 patient records and significantly more conditions than Dataset~1. Following removal of disease classes with insufficient samples for stratifying the train--test split, and deduplication of identical records (Chapter~\ref{ch:methodology}), approximately 189,600 records are available across 727 disease classes for the experiments.
 
 Table~\ref{tab:dataset2_overview} provides an overview of its main features.
 
@@ -59,9 +59,9 @@ Table~\ref{tab:dataset2_overview} provides an overview of its main features.
 \textbf{Property}         & \textbf{Value} \\
 \midrule
 Source                     & Kaggle (dhivyeshrk) \\
-Number of records          & $\sim$246,000 \\
+Number of records          & $\sim$246,000 raw ($\sim$189,600 used) \\
 Number of features         & 377 binary symptoms \\
-Number of disease classes  & 727 \\
+Number of disease classes  & 727 (after filtering rare classes) \\
 Feature type               & Binary (0/1) \\
 Target variable            & Disease name (categorical) \\
 Missing values             & Minimal \\
@@ -73,9 +73,9 @@ The larger size of Dataset~2 allows me to observe how classifiers scale with add
 
 \subsubsection{Class Distribution}
 
-The imbalance pattern of Dataset~2 is similar to Dataset~1, except that there are far more examples of the diseases present in the dataset, resulting in hundreds of examples even for the rarest diseases. This is crucial, as some classifiers (particularly Naive Bayes) need to have enough examples per class for the probability estimation to be accurate.
+In contrast to Dataset~1, Dataset~2 is truly imbalanced: the most common diseases show up with many records, whereas the rarest diseases only show up a few times. In some cases, classes were too small to have a stratified train--test split and were omitted during preprocessing, leaving 727 classes. This is important because some classifiers (in particular Naive Bayes) require a sufficient number of examples per class for the probability estimates to be reasonable.
 
-The most frequent diseases in Dataset~2 are fungal diseases, common colds and drug reactions. The more uncommon disorders are more specific diseases like psoriasis and hyperthyroidism. The class imbalance ratio (most common class divided by least common class) is a little over 50:1, but not as bad as some medical datasets in the literature, which can have a ratio as high as thousands to one.
+The common ones are generally more general and are often very common diseases, while the rare ones are more specific diseases. The residual imbalance even after filtering is significant, but not quite as severe as in other clinical datasets found in the literature, in which the maximum-to-minimum number of class instances can be thousands to one.
 
 \subsubsection{Data Quality}
 
@@ -96,13 +96,13 @@ In addition to size, there are a number of important differences between the two
 \toprule
 \textbf{Characteristic} & \textbf{Dataset~1} & \textbf{Dataset~2} \\
 \midrule
-Number of records & $\sim$5,000 & $\sim$246,000 \\
+Number of records & 4,920 (304 unique) & $\sim$246,000 ($\sim$189,600 used) \\
 Number of classes & 41 & 727 \\
-Number of features & 132 & 377 \\
-Class imbalance ratio & $\sim$10:1 & $\sim$50:1 \\
+Number of features & 131 & 377 \\
+Class imbalance ratio & $\sim$2:1 (after dedup) & High \\
 Missing values & Moderate & Minimal \\
 Data quality & High (curated) & Good (web-sourced) \\
-Smallest class size & $\sim$50 examples & $\sim$500 examples \\
+Smallest class size & 5 examples & $\geq$2 examples \\
 \bottomrule
 \end{tabular}
 \end{table}

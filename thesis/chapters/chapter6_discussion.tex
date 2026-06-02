@@ -38,9 +38,9 @@ So it is not ``the more data the merrier'' for complex models, as is typically b
 
 \subsection{Error Patterns}
 
-I looked at the confusion matrices (Section~\ref{sec:error_analysis}) and found that most of the errors were made between diseases sharing similar symptoms. This is natural and not necessarily an issue for the booking use case. When the model confuses two dermatological conditions, the patient will still book a dermatologist; the error only matters when it results in the patient booking the wrong type of specialist.
+I analysed the mistakes that XGBoost made on Dataset~1 (Section~\ref{sec:error_analysis}). One of the three misclassifications is between two very similar hepatobiliary conditions, and in this instance the booking use case would not be affected --- the patient will still be directed down the same gastroenterology/hepatology pathway. In general, when the model confuses two conditions that are treated by the same specialist, the error does not alter where the patient is sent.
 
-There are some confused pairs that are more problematic. If the model assumes that a serious respiratory infection such as pneumonia is a milder infection such as the common cold, it may delay critical treatment. A real implementation would have to identify these high-risk confusion pairs and add safeguards; the first is to flag low-confidence predictions and direct those patients to a GP instead of a specialist.
+The two other errors, Urinary tract infection (predicted as Drug Reaction) and piles (predicted as Typhoid), are between two conditions that are not very close. The few unique examples in each class in Dataset~1 are the reason these confusions arise here, but such confusions are precisely what need to be avoided when deploying in a real setting. The worst case would be to take a serious illness for a mild one and thereby delay treatment. A real implementation would therefore require identification of these high-risk confusion pairs and the incorporation of safeguards: the first being to mark low-confidence predictions and refer those patients to a GP rather than a specialist.
 
 \section{Trade-offs Between Models}
 \label{sec:tradeoffs}
@@ -65,7 +65,7 @@ Compared with the other methods, SVM was the slowest, because it is a one-vs-one
 
 In a system where the model is rarely changed and trained once and left, speed isn't as important. However, when the system needs to adapt to new disease patterns, faster training is a definite plus --- for example, a new strain of flu that changes the symptom-disease relationship.
 
-The speed of prediction is not as important for the five classifiers. Even with 200 trees, XGBoost can make a prediction in just a few milliseconds, which is quick enough for an online or mobile tool for users to interact with. Predictions of 5\,ms and 50\,ms will not be distinguishable to users.
+The speed of prediction is not as important for the five classifiers. Even with 500 trees, XGBoost can make a prediction in just a few milliseconds, which is quick enough for an online or mobile tool for users to interact with. Predictions of 5\,ms and 50\,ms will not be distinguishable to users.
 
 \subsection{Handling Rare Diseases}
 
@@ -135,7 +135,7 @@ An operational system would also be required to have as little data as possible 
 
 \subsection{EU AI Act Requirements}
 
-The EU AI Act~\citep{EUAI2024} lists medical diagnostic AI systems in Annex III (category 5b: AI systems intended to assist in medical diagnosis or treatment) as high-risk systems, because of the potentially serious consequences resulting from their use. This classification triggers a number of mandatory compliance requirements for any commercial deployment:
+The EU AI Act~\citep{EUAI2024} treats AI systems intended for medical diagnosis or treatment as high-risk: as medical devices (or safety components of such devices), they fall under Article~6(1) together with the Union harmonisation legislation listed in Annex~I, in particular the Medical Device Regulation, because of the potentially serious consequences resulting from their use. This classification triggers a number of mandatory compliance requirements for any commercial deployment:
 
 \begin{itemize}
     \item \textbf{Conformity assessment (Art. 43):} Before being placed on the market, high-risk AI systems must undergo a conformity assessment confirming that they meet safety and performance requirements. This requires detailed technical documentation covering system design, training data, validation procedures, and risk mitigation measures.
@@ -170,8 +170,8 @@ The system should be made up of several components:
 
 \begin{enumerate}
     \item \textbf{User interface:} A web or mobile application that presents patients with a symptom checklist. The interface should be simple and use plain language rather than medical jargon. The patient checks a box for each symptom they are experiencing.
-    \item \textbf{Feature encoding:} The selected symptoms are encoded as a binary vector matching the format used during training (132 features, one per symptom).
-    \item \textbf{Classifier:} The trained XGBoost or Random Forest model is applied to the feature vector and produces a predicted disease together with a confidence score (probability).
+    \item \textbf{Feature encoding:} The selected symptoms are encoded as a binary vector matching the format used during training (131 features, one per symptom).
+    \item \textbf{Classifier:} The trained Naive Bayes model is applied to the feature vector and produces a predicted disease together with a confidence score (probability).
     \item \textbf{Disease-to-specialist mapping:} A lookup table maps each disease to the appropriate specialist (for example, eczema $\rightarrow$ dermatologist, pneumonia $\rightarrow$ pulmonologist, migraine $\rightarrow$ neurologist). This mapping is defined by clinicians rather than learned by the model.
     \item \textbf{Booking system integration:} The system queries the available appointment slots for the recommended specialist and presents them to the patient.
 \end{enumerate}
