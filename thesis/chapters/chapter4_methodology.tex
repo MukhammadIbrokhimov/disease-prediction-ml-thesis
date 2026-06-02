@@ -37,8 +37,8 @@ Figure~\ref{fig:pipeline} gives an overview of the entire experimental pipeline 
 
 \node[data] (data) {%
     \textbf{Raw Data} \\
-    Dataset~1: $\sim$5{,}000 records, 132 symptoms, 41 diseases \quad\textbar\quad
-    Dataset~2: $\sim$246{,}000 records, 377 symptoms, 727 diseases};
+    Dataset~1: 4{,}920 records (304 unique), 131 symptoms, 41 diseases \quad\textbar\quad
+    Dataset~2: $\sim$246{,}000 records ($\sim$189{,}600 used), 377 symptoms, 727 diseases};
 
 \node[block, below=of data] (prep) {%
     \textbf{Preprocessing} (Sec.~\ref{sec:preprocessing}) \\
@@ -116,7 +116,7 @@ The entire pre-processing pipeline, software versions (Table~\ref{tab:software})
 \section{Feature Representation}
 \label{sec:feature_representation}
 
-Every patient is encoded as a binary vector of dimension $d = 132$ (for Dataset~1). A patient with fever, headache and nausea would have:
+Every patient is encoded as a binary vector of dimension $d = 131$ (for Dataset~1). A patient with fever, headache and nausea would have:
 
 \begin{equation}
 \label{eq:feature_vector}
@@ -178,7 +178,7 @@ The first ensemble method that I tried is Random Forest~\citep{Breiman2001}. It 
 \hat{y} = \text{mode}\{h_1(\mathbf{x}), h_2(\mathbf{x}), \ldots, h_T(\mathbf{x})\}.
 \end{equation}
 
-I selected Random Forest because it works with binary data, doesn't require any feature scaling, and gives feature importance scores (which I use later in Section~\ref{sec:feature_importance}). In preliminary tests, 200 trees yielded excellent performance, training in a few seconds. Implementation: \texttt{sklearn.ensemble.RandomForestClassifier}.
+I selected Random Forest because it works with binary data, doesn't require any feature scaling, and gives feature importance scores (which I use later in Section~\ref{sec:feature_importance}). In preliminary tests, 100 trees yielded excellent performance, training in a few seconds. Implementation: \texttt{sklearn.ensemble.RandomForestClassifier}.
 
 \subsection{XGBoost}
 \label{sec:xgboost}
@@ -195,7 +195,7 @@ I added XGBoost to see if it is worth the added complexity compared to Random Fo
 \section{Class Imbalance Handling}
 \label{sec:class_imbalance}
 
-Both datasets are imbalanced, with some diseases more prevalent than others. When not dealt with, classifiers tend to over-predict common diseases and ignore rare ones.
+Dataset~2 is substantially imbalanced, while Dataset~1 is only mildly imbalanced (roughly 2:1) after deduplication. In both cases some diseases are more prevalent than others, and when this is not dealt with, classifiers tend to over-predict common diseases and ignore rare ones.
 
 There were two approaches I used:
 

@@ -6,7 +6,7 @@ The results obtained from the five classifiers are given in this chapter for bot
 \section{Results on Dataset~1}
 \label{sec:results_dataset1}
 
-Table~\ref{tab:results_dataset1} displays the performance of each of the five classifiers on the Disease Symptom Prediction Dataset (around 5,000 records, 132 symptoms, 41 disease classes).
+Table~\ref{tab:results_dataset1} displays the performance of each of the five classifiers on the Disease Symptom Prediction Dataset (304 unique records after deduplication from 4,920 raw rows, 131 symptoms, 41 disease classes).
 
 \begin{table}[H]
 \centering
@@ -32,7 +32,7 @@ Note that the perfect scores obtained by Logistic Regression and SVM should be t
 \section{Results on Dataset~2}
 \label{sec:results_dataset2}
 
-The results on the bigger Diseases and Symptoms Dataset (around 246,000 records) are presented in Table~\ref{tab:results_dataset2}.
+The results on the bigger Diseases and Symptoms Dataset (about 189,600 records used, from around 246,000 raw) are presented in Table~\ref{tab:results_dataset2}.
 
 \begin{table}[H]
 \centering
@@ -53,6 +53,8 @@ XGBoost              & 79.84 & 56.64 & 54.07 & 54.63 \\
 
 The results on Dataset~2 are quite different from Dataset~1. This dataset contains 727 disease classes and approximately 151{,}680 training samples, and all classifiers showed a drop in performance. Naive Bayes maintained its high performance with an accuracy of 84.11\% and a macro-F1 of 75.97\% --- better than the more complex models. Logistic Regression achieved an accuracy of 81.82\%, with a lower level of precision (64.50\%). XGBoost reached 79.84\% accuracy. Random Forest achieved the lowest accuracy of 46.69\%, due to the trees being set to depth 10, which may not be enough to classify 727 classes. Since the scale of the computation is large, SVM was approximated by a linear classifier based on Stochastic Gradient Descent. The overall decline in performance between Dataset~1 and Dataset~2 is not surprising, as the latter contains many more classes with a significant amount of overlap in their symptoms.
 
+It should be stressed that the results of Dataset~2 were achieved with a deliberately limited setup: hyperparameters were not optimised using full grid search, and the kernel SVM was approximated by a linear form based on stochastic gradient descent, both to ensure that the training was manageable for this size of data (Chapter~\ref{ch:methodology}). The fact that Naive Bayes performed very well under these constraints should be interpreted as the best performance under that setup, and not as evidence for its superior performance over the other classifiers. This ranking could narrow or alter itself as a result of a greater tuning budget, especially for Random Forest, which was capped in depth, and for the SVM.
+
 \section{Error Analysis}
 \label{sec:error_analysis}
 
@@ -65,9 +67,9 @@ I created a confusion matrix for XGBoost (the best tree-based model overall) on 
 \label{fig:confusion_matrix}
 \end{figure}
 
-The confusion matrix reveals that the majority of the errors are between diseases with similar symptoms. For instance, related respiratory diseases such as bronchitis and pneumonia were sometimes difficult to distinguish because of similar symptoms like cough, fever, and chest pain. Likewise, various types of skin problems were mixed up when they presented with a similar rash.
+For the held-out test set of 61 samples, XGBoost made three errors. These were: Jaundice predicted as Chronic cholestasis; Urinary tract infection predicted as Drug Reaction; and Dimorphic haemorrhoids (piles) predicted as Typhoid.
 
-Interestingly, some of these confusion pairs are also clinically appropriate, as the diseases commonly have to be managed by the same specialist. A misclassification between two dermatological conditions would still direct the patient to a dermatologist, so the error would not affect the healthcare booking use case.
+The first of these is clinically coherent. A patient with jaundice or chronic cholestasis would fall under the same booking use case, as the symptoms are the same (yellow skin) in both conditions --- so this misclassification would not affect the booking use case. The two remaining errors, however, are between conditions which are not adjacent. The small number of different symptom--disease combinations in each class of Dataset~1 (5--10 per class), and the small number of test samples per class (one or two), mean that one atypical record can induce a misclassification, and there is not enough data for the model to learn a robust boundary. This further confirms the argument in Section~\ref{sec:results_dataset1} that the excellent scores on Dataset~1 are not indicative of reliability in real-world situations, but rather are due to the small and clean size of the data.
 
 \section{Feature Importance Analysis}
 \label{sec:feature_importance}
@@ -81,6 +83,6 @@ Random Forest and XGBoost can be used to calculate feature importances based on 
 \label{fig:feature_importance}
 \end{figure}
 
-The feature importance analysis revealed that certain symptoms provide more information than others. Disease-specific symptoms like ``skin\_rash'', ``chest\_pain'', and ``yellowish\_skin'' were high-ranking. Very general symptoms like fatigue and headache were not so important, as they are found in many diseases and give little discriminating signal.
+The feature importance analysis showed that some of the symptoms contain much more discriminative information. The most important symptom based on the gain was ``phlegm'', followed by other well-defined symptoms such as ``excessive\_hunger'', ``mild\_fever'', ``muscle\_pain'', ``rusty\_sputum'' and ``back\_pain''. Some of these are associated with specific disease sets --- for example, ``rusty\_sputum'' is an archetypical symptom of pneumonia --- and so can be used to separate classes. Very general symptoms, like fatigue or headache, do not show up among the top features, as they are common to a lot of diseases and thus do not provide a strong discriminating signal.
 
 This indicates that a short symptom questionnaire, consisting of only 15 or 20 carefully selected symptoms, could do as well and be much simpler for patients to complete. A discussion of this possibility is continued in Chapter~\ref{ch:conclusion}.
