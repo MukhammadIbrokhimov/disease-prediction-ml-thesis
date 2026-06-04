@@ -58,7 +58,7 @@ It should be stressed that the results of Dataset~2 were achieved with a deliber
 \section{Error Analysis}
 \label{sec:error_analysis}
 
-I made a confusion matrix for the XGBoost model on Dataset~1 to see how the model works with this data. I chose XGBoost over Random Forest because, when the two tree-based models are compared across the two datasets, XGBoost is the better of the two. The normalized confusion matrix is given in Figure~\ref{fig:confusion_matrix}, wherein cells along the diagonal are marked with the per-class accuracy.
+I made a confusion matrix for the XGBoost model on Dataset~1 to see how the model works with this data. I chose XGBoost over Random Forest because it was the more robust of the two tree-based models on the larger Dataset~2, where Random Forest collapsed under its fixed depth limit (on the small Dataset~1, Random Forest scored slightly higher). The normalized confusion matrix is given in Figure~\ref{fig:confusion_matrix}, wherein cells along the diagonal are marked with the per-class accuracy.
 
 \begin{figure}[H]
 \centering
