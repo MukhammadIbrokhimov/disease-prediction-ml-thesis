@@ -101,26 +101,26 @@ tqdm       & 4.66+ \\
 \section{Training Time Estimates}
 \label{app:training_times}
 
-Table~\ref{tab:training_times} reports order-of-magnitude wall-clock training times for each classifier on each dataset. Times for Dataset~1 include the full grid search with 5-fold stratified cross-validation (Section~\ref{sec:hyperparameter_tuning}). Times for Dataset~2 correspond to a single fit using the fixed hyperparameters listed in Table~\ref{tab:hyperparameters}, since exhaustive tuning at that scale was not computationally feasible. All numbers are approximate and vary with system load.
+Table~\ref{tab:training_times} shows the recorded wall-clock time (rounded) needed to fit the final model for each classifier on each dataset in the experiment runs. On Dataset~1, the overhead of the full grid search with 5-fold stratified cross-validation (Section~\ref{sec:hyperparameter_tuning}) is also added to the single-fit times, whereas on Dataset~2 the single fits with the fixed hyperparameters listed in Table~\ref{tab:hyperparameters} were evaluated instead, as exhaustive tuning was not computationally feasible at this scale. All the numbers vary with the system load.
 
 \begin{table}[H]
 \centering
-\caption{Approximate wall-clock training times on the compute environment described in Table~\ref{tab:hardware}. Grid search on Dataset~1 used \texttt{GridSearchCV} with \texttt{n\_jobs=-1}, parallelizing across all available cores.}
+\caption{Measured final-fit training times on the compute environment described in Table~\ref{tab:hardware}, rounded from the recorded experiment runs.}
 \label{tab:training_times}
 \begin{tabular}{@{}lll@{}}
 \toprule
-\textbf{Classifier} & \textbf{Dataset 1} (grid + 5-fold CV) & \textbf{Dataset 2} (single fit) \\
+\textbf{Classifier} & \textbf{Dataset 1} (final fit) & \textbf{Dataset 2} (final fit) \\
 \midrule
-Naive Bayes         & $\sim$30 seconds & $\sim$25 seconds \\
-Logistic Regression & $\sim$3 minutes  & $\sim$12 minutes \\
-SVM                 & $\sim$2 minutes (RBF) & $\sim$10 minutes (linear SGD) \\
-Random Forest       & $\sim$6 minutes  & $\sim$18 minutes \\
-XGBoost             & $\sim$8 minutes  & $\sim$14 minutes \\
+Naive Bayes         & $\sim$2 seconds  & $\sim$2 seconds \\
+Logistic Regression & $\sim$5 seconds  & $\sim$3 minutes \\
+SVM                 & $<$1 second (RBF) & $\sim$2.5 minutes (linear SGD) \\
+Random Forest       & $\sim$9 seconds  & $\sim$3 seconds \\
+XGBoost             & $\sim$25 seconds & $\sim$2.5 minutes \\
 \midrule
-\textbf{Total}      & $\sim$20 minutes & $\sim$55 minutes \\
+\textbf{Total}      & $\sim$40 seconds & $\sim$8 minutes \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Grid-search times on Dataset~1 are dominated by Random Forest and XGBoost, where the hyperparameter grid contains tens of configurations and each is refitted across five cross-validation folds. On Dataset~2, training times scale with the number of disease classes (727) rather than the number of fits, since each classifier learns a one-vs-rest or softmax decision over hundreds of classes. The linear models (Logistic Regression, linear SGD) spend most of this time on solver iterations against the high-cardinality output space, while the tree-based models scale with the number of estimators and the depth of each tree.
+On Dataset~1, XGBoost (500 trees) and Random Forest dominate the fit times, whereas Naive Bayes and the small RBF SVM are so fast that they finish almost immediately. On Dataset~2 the picture is different: the linear models (Logistic Regression and the SGD-SVM) and XGBoost each need a few minutes to train, with the number of solver iterations or boosting rounds taking up most of the time over the 727-class output space; in comparison, Naive Bayes and the depth-capped Random Forest train in a few seconds.
 

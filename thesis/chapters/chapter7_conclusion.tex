@@ -10,7 +10,7 @@ The results support that classifiers have significant differences but no one mod
 
 Logistic Regression performed well as a linear baseline. It was not the best on all scores, but it is a nice choice when interpretability is valued more than the last few percentage points of accuracy.
 
-SVM was similar to Logistic Regression in predictive performance but much slower to train, especially on the larger dataset. Its one-vs-one multi-class approach has poor scalability with the number of classes, and is not suitable for this application.
+SVM was as good as Logistic Regression in predictive ability. A full kernel SVM scales badly with the number of classes because it trains $C(C-1)/2$ classifiers, hence an approximation by a linear SGD model on the larger dataset was needed. This is the most difficult of the five to retrain as the number of diseases increases.
 
 Naive Bayes was a good baseline, and it outperformed the other classifiers on the accuracy measure on Dataset~2. It is also quick to train, which is of great benefit in situations where simplicity and runtime are more important than model complexity.
 
