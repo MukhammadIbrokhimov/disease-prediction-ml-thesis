@@ -41,7 +41,7 @@ Another finding from this review is that almost all of the studies include only 
 
 Other studies are based on proprietary clinical data from hospitals and are hard to replicate. Open datasets such as those found on Kaggle are easier to access and can be used by other researchers to check results, but they may be less noisy or more uniformly formatted than real clinical data. Therefore, there is a trade-off between reproducibility and realism.
 
-To address this question of generalization, I chose two datasets of vastly different sizes: one containing nearly 5{,}000 records~\citep{Kaggle_Disease2020} and one containing about 246{,}000 records~\citep{Kaggle_Diseases2023}. This enables me to see how the classifiers' ranks change with the size of the data and whether the larger set of data benefits all classifiers or just some of them.
+To address this question of generalization, I chose two datasets of vastly different sizes: one containing 4{,}920 raw records that reduce to 304 unique symptom--disease combinations after deduplication~\citep{Kaggle_Disease2020} and one containing about 246{,}000 records, of which roughly 189{,}600 are used after filtering~\citep{Kaggle_Diseases2023}. This enables me to see how the classifiers' ranks change with the size of the data and whether the larger set of data benefits all classifiers or just some of them.
 
 \section{Challenges in Medical Prediction}
 \label{sec:challenges}

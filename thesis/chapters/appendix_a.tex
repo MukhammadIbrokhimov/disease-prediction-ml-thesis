@@ -101,7 +101,7 @@ tqdm       & 4.66+ \\
 \section{Training Time Estimates}
 \label{app:training_times}
 
-Table~\ref{tab:training_times} shows the recorded wall-clock time (rounded) needed to fit the final model for each classifier on each dataset in the experiment runs. On Dataset~1, the overhead of the full grid search with 5-fold stratified cross-validation (Section~\ref{sec:hyperparameter_tuning}) is also added to the single-fit times, whereas on Dataset~2 the single fits with the fixed hyperparameters listed in Table~\ref{tab:hyperparameters} were evaluated instead, as exhaustive tuning was not computationally feasible at this scale. All the numbers vary with the system load.
+Table~\ref{tab:training_times} shows the recorded wall-clock time (rounded) needed to fit the final model for each classifier on each dataset in the experiment runs. The reported values are the time to fit the final model once with the selected hyperparameters; they exclude the additional overhead of the full grid search with 5-fold stratified cross-validation used for tuning on Dataset~1 (Section~\ref{sec:hyperparameter_tuning}), which is substantially larger. On Dataset~2 no grid search was run, as exhaustive tuning was not computationally feasible at this scale. All the numbers vary with the system load.
 
 \begin{table}[H]
 \centering
