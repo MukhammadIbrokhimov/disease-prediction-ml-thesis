@@ -33,6 +33,7 @@
 \usepackage{multirow}           % Table cell merging
 \usepackage{pdflscape}          % Landscape pages
 \usepackage{fancyhdr}           % Headers/footers
+\usepackage{pdfpages}           % Embed official examination-office PDF forms
 \usepackage{tikz}               % Diagrams (pipeline figure)
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc}
 
@@ -80,11 +81,17 @@
 % --- Front Matter (Roman page numbers: i, ii, iii, ...) ---
 \pagenumbering{roman}
 
-% Statement of Authorship
-\input{chapters/declaration}
+% Statement of Authorship (official UE Examination Office form, filled)
+\includepdf[pages=-, fitpaper=true, pagecommand={%
+  \thispagestyle{empty}\phantomsection
+  \addcontentsline{toc}{chapter}{Statement of Authorship}}]%
+  {chapters/forms/authorship_filled.pdf}
 
-% Declaration on AI Use
-\input{chapters/ai_declaration}
+% Declaration on AI Use (official UE Examination Office form, filled)
+\includepdf[pages=-, fitpaper=true, pagecommand={%
+  \thispagestyle{empty}\phantomsection
+  \addcontentsline{toc}{chapter}{Declaration on the Use of AI}}]%
+  {chapters/forms/ai_usage_filled.pdf}
 
 \tableofcontents
 \listoffigures
